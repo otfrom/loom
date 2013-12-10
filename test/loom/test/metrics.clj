@@ -34,3 +34,11 @@
         {:a 0}     (strengths (-> (weighted-graph) (add-nodes :a)))
         {:a [0 0]} (strengths (-> (weighted-digraph) (add-nodes :a)))))))
 
+(deftest test-clustering
+  (let [g (add-nodes (graph [:a :b] [:a :d] [:a :e] [:a :g] 
+                             [:b :c] [:b :d] [:b :e] [:b :g]
+                             [:c :d] [:d :e] [:e :f] [:f :g] [:g :h])
+                     :i)]
+    (testing "Clustering coefficient"
+      (are [expected got] (= expected got)
+        {:a 4/6 :b 5/10 :c 1/1 :d 4/6 :e 3/6 :f 0/1 :g 1/6 :h 0 :i 0} (clustering g)))))
