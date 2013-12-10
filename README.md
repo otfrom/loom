@@ -1,6 +1,6 @@
 ![Loom logo](https://raw.github.com/aysylu/loom/master/doc/loom_logo.png "Loom")
 
-[![Build Status](https://travis-ci.org/aysylu/loom.png)](http://travis-ci.org/aysylu/loom)
+
 
 **Caveat coder**: This library is not yet battle-tested.
 
@@ -15,7 +15,7 @@ The namespace `loom.graph` must be AOT compiled. You can include `:aot [loom.gra
 
 ### Leiningen/Clojars [group-id/name version]
 
-    [aysylu/loom "0.4.1"]
+    [brunokim/loom "0.4.1"]
 
 ### Namespaces
 
