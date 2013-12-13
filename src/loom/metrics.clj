@@ -1,7 +1,10 @@
 (ns ^{:doc "Graph metrics"
       :author "Bruno Kim Medeiros Cesar"}
   loom.metrics
-  (:use [loom.graph :only [in-degree out-degree weighted? directed? nodes edges weight predecessors successors has-edge?]]))
+  (:use [loom.graph 
+         :only [nodes edges weighted? directed? predecessors successors 
+                in-degree out-degree weight has-edge?]])
+  (:require [loom.alg :as alg]))
 
 (defn degrees
   "Returns a map from each graph's node to its degree.
@@ -66,7 +69,27 @@
   (when (directed? g) (throw (IllegalArgumentException. "Graph is directed")))
   (let [closed? (for [node (nodes g)
                       n1 (successors g node)
-                      n2 (successors g node)]
-                 (has-edge? g n1 n2))]
+                      n2 (successors g node)
+                      :when (not= n1 n2)]
+                  (has-edge? g n1 n2))]
     (/ (count (filter identity closed?))
        (count closed?))))
+
+(defn distances
+  "Returns histogram of geodesic distances in component, given as a sequence of vertices.
+   If component is not given, uses all nodes in graph.
+   If the component is not connected, returns number of unreachable paths in Double/POSITIVE_INFINITY."
+  ([g]
+     (distances g (nodes g)))
+  ([g comp]
+     (let [hist (frequencies
+                  (for [u comp, v comp] ; TODO calculate over the spanning tree of each vertex
+                    (cond
+                      (= u v) 0
+                      (weighted? g) (second (alg/dijkstra-path-dist g u v))
+                      :else         (when-let [path (alg/bf-path g u v)]
+                                      (dec (count path))))))
+           num-unreachable (get hist nil)]
+       (if num-unreachable
+         (-> hist (dissoc nil) (assoc Double/POSITIVE_INFINITY num-unreachable))
+         hist))))

@@ -50,11 +50,32 @@
         {:a [0 0]} (strengths (-> (weighted-digraph) (add-nodes :a)))))))
 
 (deftest test-clustering
-  (let [g (add-nodes (graph [:a :b] [:a :d] [:a :e] [:a :g] 
-                             [:b :c] [:b :d] [:b :e] [:b :g]
-                             [:c :d] [:d :e] [:e :f] [:f :g] [:g :h])
-                     :i)]
+  (let [g (-> (graph [:a :b] [:a :d] [:a :e] [:a :g] 
+                     [:b :c] [:b :d] [:b :e] [:b :g]
+                     [:c :d] [:d :e] [:e :f] [:f :g] [:g :h])
+            (add-nodes :i))]
     (testing "Clustering coefficient"
       (is (= {:a 4/6 :b 5/10 :c 1/1 :d 4/6 :e 3/6 :f 0/1 :g 1/6 :h 0 :i 0} (clustering g))))
     (testing "Transitivity"
-      (is (= 0 (transitivity g))))))
+      (is (= 36/72 (transitivity g))))))
+
+(deftest test-distances
+  (let [g (-> (graph [:a :b] [:b :c]
+                     [:d :e] [:e :f] [:e :g] [:f :g]
+                     [:h :i])
+            (add-nodes :j))
+        wg (-> (weighted-graph [:a :b 1] [:b :c 2]
+                               [:d :e 2] [:e :f 3] [:e :g 1] [:f :g 1]
+                               [:h :i 2])
+            (add-nodes :j))]
+    (testing "Distance histogram in simple graph"
+      (are [expected got] (= expected got) 
+        {0 3, 1 4, 2 2} (distances g [:a :b :c])
+        {0 4, 1 8, 2 4} (distances g [:d :e :f :g])
+        {0 2, 1 2}      (distances g [:h :i])
+        {0 1}           (distances g [:j])
+        {0 7, 1 12, 2 6, Double/POSITIVE_INFINITY 24} (distances g [:a :b :c :d :e :f :g])))
+    (testing "Distance histogram in weighted graph"
+      (are [expected got] (= expected got)
+        {0 3, 1 2, 2 2, 3 2}      (distances wg [:a :b :c])
+        {0 4, 1 4, 2 4, 3 2, 4 2} (distances wg [:d :e :f :g])))))
