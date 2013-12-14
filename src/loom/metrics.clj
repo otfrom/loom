@@ -18,7 +18,7 @@
 
 (defn strength
   "Returns a node's strength (sum of weights).
-  Graph: <strenght>
+  Graph: <strength>
   Digraph: [<in-strength> <out-strength>]
   
   For unweighted graphs, every edge has weight 1."
